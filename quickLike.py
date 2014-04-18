@@ -485,25 +485,36 @@ class quickLike:
                                  "and/or config file to indicate which source you are considering.")
             return
 
+        TS=[]
+        dist=[]
+        source=[]
+        free=[]
         for name in self.MIN.sourceNames():
-            remove = False
-            distance = 0
-            sourceTS = self.MIN.Ts(name)
+            source.append(name)
+            TS.append(self.MIN.Ts(name))
             if(self.MIN.model[name].src.getType() == 'Point'):
-                distance = self.MIN._separation(self.MIN.model[mySource].src,self.MIN.model[name].src)
-            if(np.shape(self.MIN.freePars(name))[0] > 0):
-                indexFree = "Free"
-                if( (sourceTS < tslimit) and (distance > distlimit) and RemoveFree ):
-                    remove = True
+                dist.append(self.MIN._separation(self.MIN.model[mySource].src,self.MIN.model[name].src))
+            else: dist.append(0)
+            if(np.shape(self.MIN.freePars(name))[0] > 0): free.append("Free")
+            else: free.append("Fixed")
+
+        sourceName=np.array(source)
+        sourceTS=np.array(TS)
+        distance=np.array(dist)
+        indexFree=np.array(free)
+
+        for j in range (np.size(sourceName)):
+            remove = False
+            #if(indexFree[j]=="Free"):
+            if( (sourceTS[j] < tslimit) and (distance[j] > distlimit) and RemoveFree and indexFree[j]=="Free"): remove = True
             else:
-                indexFree = "Fixed"
-                if( (sourceTS < tslimit) and (distance > distlimit) and RemoveFixed ):
-                    remove = True
+                if( (sourceTS[j] < tslimit) and (distance[j] > distlimit) and RemoveFixed and indexFree[j]=="Fixed"): remove = True
             if( remove ):
-                self.logger.info("Removing "+name+", TS: "+str(sourceTS)+", Frozen?: "+str(indexFree)+", Distance: "+str(distance))
-                self.MIN.deleteSource(name)
+                self.logger.info("Removing "+sourceName[j]+", TS: "+str(sourceTS[j])+", Frozen?: "+indexFree[j]+", Distance: "+str(distance[j]))
+                self.MIN.deleteSource(source[j])
             else:
-                self.logger.info("Retaining "+name+", TS: "+str(sourceTS)+", Frozen?: "+str(indexFree)+", Distance: "+str(distance))
+                self.logger.info("Retaining "+sourceName[j]+", TS: "+str(sourceTS[j])+", Frozen?: "+indexFree[j]+", Distance: "+str(distance[j]))
+
 
     def unLoadSource(self, name):
 
