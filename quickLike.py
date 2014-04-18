@@ -505,7 +505,6 @@ class quickLike:
 
         for j in range (np.size(sourceName)):
             remove = False
-            #if(indexFree[j]=="Free"):
             if( (sourceTS[j] < tslimit) and (distance[j] > distlimit) and RemoveFree and indexFree[j]=="Free"): remove = True
             else:
                 if( (sourceTS[j] < tslimit) and (distance[j] > distlimit) and RemoveFixed and indexFree[j]=="Fixed"): remove = True
